@@ -5,6 +5,17 @@ import zipfile
 
 import streamlit as st
 
+
+# ── LOAD CLOUD SECRETS ────────────────────────────
+
+try:
+    for key in ["EMAIL", "APP_PASSWORD", "WEATHER_KEY"]:
+        if key in st.secrets:
+            os.environ[key] = st.secrets[key]
+except Exception:
+    pass
+
+
 from personal_automation import (
     organize_files,
     log_weather,
@@ -70,7 +81,6 @@ with tab1:
 
                 with tempfile.TemporaryDirectory() as temp_folder:
 
-                    # Save uploaded files
                     for uploaded_file in uploaded_files:
 
                         file_path = os.path.join(
@@ -87,14 +97,12 @@ with tab1:
                                 uploaded_file.getbuffer()
                             )
 
-                    # Organize files
                     result = organize_files(
                         temp_folder
                     )
 
                     st.success(result)
 
-                    # Create ZIP file
                     zip_path = os.path.join(
                         temp_folder,
                         "organized_files.zip"
@@ -194,7 +202,6 @@ with tab2:
                 "Please enter a city name."
             )
 
-    # Show existing weather log
     if os.path.exists("weather_log.csv"):
 
         st.subheader("📊 Weather Log")
