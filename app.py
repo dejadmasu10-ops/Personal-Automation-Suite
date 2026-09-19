@@ -1,17 +1,26 @@
 import os
-import shutil
 import tempfile
 import zipfile
 
 import streamlit as st
 
+import personal_automation
 
-# ── LOAD CLOUD SECRETS ────────────────────────────
+
+# --------------------------------------------------
+# Load Streamlit Cloud secrets directly
+# --------------------------------------------------
 
 try:
-    for key in ["EMAIL", "APP_PASSWORD", "WEATHER_KEY"]:
-        if key in st.secrets:
-            os.environ[key] = st.secrets[key]
+    if "EMAIL" in st.secrets:
+        personal_automation.EMAIL = st.secrets["EMAIL"]
+
+    if "APP_PASSWORD" in st.secrets:
+        personal_automation.APP_PASSWORD = st.secrets["APP_PASSWORD"]
+
+    if "WEATHER_KEY" in st.secrets:
+        personal_automation.WEATHER_KEY = st.secrets["WEATHER_KEY"]
+
 except Exception:
     pass
 
@@ -24,7 +33,9 @@ from personal_automation import (
 )
 
 
-# ── PAGE CONFIGURATION ────────────────────────────
+# --------------------------------------------------
+# Page settings
+# --------------------------------------------------
 
 st.set_page_config(
     page_title="Personal Automation Suite",
@@ -33,7 +44,9 @@ st.set_page_config(
 )
 
 
-# ── TITLE ─────────────────────────────────────────
+# --------------------------------------------------
+# Title
+# --------------------------------------------------
 
 st.title("⚙️ Personal Automation Suite")
 
@@ -43,7 +56,9 @@ st.write(
 )
 
 
-# ── TABS ──────────────────────────────────────────
+# --------------------------------------------------
+# Tabs
+# --------------------------------------------------
 
 tab1, tab2, tab3 = st.tabs([
     "📁 File Organizer",
@@ -52,9 +67,9 @@ tab1, tab2, tab3 = st.tabs([
 ])
 
 
-# ══════════════════════════════════════════════════
+# ==================================================
 # FILE ORGANIZER
-# ══════════════════════════════════════════════════
+# ==================================================
 
 with tab1:
 
@@ -81,6 +96,7 @@ with tab1:
 
                 with tempfile.TemporaryDirectory() as temp_folder:
 
+                    # Save uploaded files
                     for uploaded_file in uploaded_files:
 
                         file_path = os.path.join(
@@ -88,21 +104,20 @@ with tab1:
                             uploaded_file.name
                         )
 
-                        with open(
-                            file_path,
-                            "wb"
-                        ) as file:
+                        with open(file_path, "wb") as file:
 
                             file.write(
                                 uploaded_file.getbuffer()
                             )
 
+                    # Organize files
                     result = organize_files(
                         temp_folder
                     )
 
                     st.success(result)
 
+                    # Create ZIP file
                     zip_path = os.path.join(
                         temp_folder,
                         "organized_files.zip"
@@ -138,6 +153,7 @@ with tab1:
                                     archive_path
                                 )
 
+                    # Download ZIP
                     with open(
                         zip_path,
                         "rb"
@@ -159,9 +175,9 @@ with tab1:
                 )
 
 
-# ══════════════════════════════════════════════════
+# ==================================================
 # WEATHER LOGGER
-# ══════════════════════════════════════════════════
+# ==================================================
 
 with tab2:
 
@@ -188,7 +204,9 @@ with tab2:
                 city.strip()
             )
 
-            if result.startswith("Weather logged"):
+            if result.startswith(
+                "Weather logged"
+            ):
 
                 st.success(result)
 
@@ -202,9 +220,14 @@ with tab2:
                 "Please enter a city name."
             )
 
-    if os.path.exists("weather_log.csv"):
+    # Weather log
+    if os.path.exists(
+        "weather_log.csv"
+    ):
 
-        st.subheader("📊 Weather Log")
+        st.subheader(
+            "📊 Weather Log"
+        )
 
         try:
 
@@ -238,9 +261,9 @@ with tab2:
             )
 
 
-# ══════════════════════════════════════════════════
+# ==================================================
 # EMAIL
-# ══════════════════════════════════════════════════
+# ==================================================
 
 with tab3:
 
@@ -299,7 +322,9 @@ with tab3:
                 st.error(result)
 
 
-# ── FOOTER ────────────────────────────────────────
+# --------------------------------------------------
+# Footer
+# --------------------------------------------------
 
 st.divider()
 
